@@ -33,7 +33,6 @@ def calculate_penguin_metrics(data_list_of_dicts):
     processed_data = []
     
     for record in data_list_of_dicts:
-        # Attempt to convert relevant fields to float, skipping records with missing data (NA)
         try:
             bill_l = float(record['bill_length_mm'])
             bill_d = float(record['bill_depth_mm'])
@@ -47,9 +46,7 @@ def calculate_penguin_metrics(data_list_of_dicts):
             processed_data.append(record)
             
         except ValueError:
-            # Skip records where bill_length_mm, bill_depth_mm, or flipper_length_mm is 'NA'
-            # Note: For production code, better NA handling (e.g., imputation) would be used.
-            continue 
+        
             
     return processed_data
 
@@ -60,42 +57,31 @@ def calculate_bill_index(bill_length, bill_depth):
     """Calculates the Bill Index (Ratio): bill_length / bill_depth."""
     return bill_length / bill_depth
 
-# This function uses the pre-calculated global mean and standard deviation
 def calculate_flipper_zscore(flipper_length, mu, sigma):
     """
     Calculates the Flipper Z-score: (value - mean) / std_dev.
     It calls the conceptual Level 2 functions implicitly via the constants.
     """
-    # Conceptual calls to get_mean(data) -> mu and get_std_dev(data) -> sigma
-    # are replaced by passing the constants for efficiency and scope.
-    return (flipper_length - mu) / sigma
-
+   
 def calculate_volumetric_proxy(bill_length, bill_depth, flipper_length):
     """Calculates the Penguin Volumetric Proxy: L * D * Flipper L."""
     return bill_length * bill_depth * flipper_length
 
 
 # --- Helper Functions (Conceptual Level 2) for Z-Score ---
-# NOTE: In the current structure, these are not called dynamically, 
-# but are included here to show their conceptual role in the decomposition.
 def get_mean(data_series):
     """Conceptual function to calculate the mean of a data series."""
-    # In a real implementation, this would iterate and sum the values.
-    return sum(data_series) / len(data_series)
+   
 
 def get_std_dev(data_series, mu):
     """Conceptual function to calculate the standard deviation of a data series."""
-    # In a real implementation, this would calculate the square root of the variance.
-    pass # Not implemented fully as the value is pre-calculated.
-
-
+  
 # --- File I/O Functions (For Project Requirements) ---
 
 def read_csv_to_list_of_dicts(filename):
     """Imports a CSV file and returns the data as a list of dictionaries."""
     data = []
     with open(filename, mode='r', newline='', encoding='utf-8') as file:
-        # Use DictReader to read each row as a dictionary
         reader = csv.DictReader(file)
         for row in reader:
             data.append(row)
@@ -107,16 +93,13 @@ def write_results_to_file(filename, data):
         print("No data to write.")
         return
 
-    # Get all column names from the first record
     fieldnames = data[0].keys()
     
     with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         
-        # Write the header
         writer.writeheader()
         
-        # Write the data rows
         writer.writerows(data)
     
     print(f"Successfully wrote {len(data)} processed records to {filename}")
@@ -125,13 +108,8 @@ def write_results_to_file(filename, data):
 # --- Execution Block ---
 
 if __name__ == '__main__':
-    # 1. Read data (Implementation of the 'Import' step)
     penguins_data = read_csv_to_list_of_dicts("penguins.csv")
     
-    # 2. Perform calculations (Implementation of the Main Module)
     calculated_results = calculate_penguin_metrics(penguins_data)
     
-    # 3. Write results to file (Implementation of 'File Output Function')
     write_results_to_file("penguin_metrics_results.csv", calculated_results)
-    
-    # NOTE: You will need to write the required Test Functions separately.
